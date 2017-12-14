@@ -1,11 +1,11 @@
 'use strict';
-/* global $ */
+/* global $*/
 
-const TOP_LEVEL_COMPONENTS = [ //array js classes in order to hide all
+const TOP_LEVEL_COMPONENTS = [ //array stores js classes in order to hide all
   'js-intro', 'js-question', 'js-question-feedback', 'js-outro', 'js-quiz-status'
 ];
 
-const QUESTIONS = [ //array-object with local questions to display
+const QUESTIONS = [ //array-object stores local questions to display
   {
     text: 'Capital of England?',
     answers: ['London', 'Paris', 'Rome', 'Washington DC'],
@@ -23,56 +23,45 @@ const getInitialStore = function() { //initial STORE/DOM view
     page: 'intro', //view intro
     currentQuestionIndex: null, //no current question
     userAnswers: [], //empty array user answer
-    feedback: null //no current feedback
+    feedback: null, //no current feedback
   };
 };
 
-let store = getInitialStore(); //variable initialize function
+let store = getInitialStore(); //retrieve initial STORE function
 
-// API source data functions
-// ===============
-/*
-const BASE_URL = 'http://example.api.com';
-const MAIN_PATH = '/some/path';
-const TOKEN_PATH = '/another/path';
+// Set-up API
+//=============
 
-// Build the endpoint URL
-function buildBaseUrl() {}
-function buildTokenUrl() {}
+const BASE_URL = 'https://opentdb.com';
+const TOKEN_PATH = '/api_token.php';
+let sessionToken;
 
-// Fetch data
-function fetchToken() {}
-function fetchQuestions() {}
+const fetchSessionToken = function(callback) {
+  $.getJSON(BASE_URL + TOKEN_PATH, { command: 'request'}, function(response) {
+    if (response.response_code !== 0) {
+      throw new Error('Something went wrong');
+    } 
+    sessionToken = response.token;
+    callback();
+  }
+  
+  );
+};
 
-// Decorate responses
-function decorateQuestion() {}
-
-// Add question to store
-function addQuestion() {}
-
-//built in functions to build url
-
-const url = new URL('http://example.api.com');
-
-url.pathname = '/my/path';
-url.searchParams.set('foo', 'bar');
-url.searchParams.set('mon', 'key');
-
-url.toString(); //=> 'http://example.api.com/my/path?foo=bar&mon=key'
+fetchSessionToken(() => {
+  $('.js-start-button').attr('disabled', false);
+});
 
 
-// toString() is automatically called when passed into getJSON()
-$.getJSON(url, callback);
-*/
 
 // Helper functions
 // ===============
-const hideAll = function() {
+const hideAll = function() { //variable function hides all js components
   TOP_LEVEL_COMPONENTS.forEach(component => $(`.${component}`).hide());
 };
 
-const getScore = function() {
-  return store.userAnswers.reduce((accumulator, userAnswer, index) => {
+const getScore = function() { //variable function keeps track of user score
+  return store.userAnswers.reduce((accumulator, userAnswer, index) => { //what is reduce????
     const question = getQuestion(index);
 
     if (question.correctAnswer === userAnswer) {
@@ -83,24 +72,24 @@ const getScore = function() {
   }, 0);
 };
 
-const getProgress = function() {
+const getProgress = function() { // variable function that tracks question progress
   return {
     current: store.currentQuestionIndex + 1,
     total: QUESTIONS.length
   };
 };
 
-const getCurrentQuestion = function() {
+const getCurrentQuestion = function() { //variable function that obtains the current question from store
   return QUESTIONS[store.currentQuestionIndex];
 };
 
-const getQuestion = function(index) {
+const getQuestion = function(index) { //variable function that gets the question from the array
   return QUESTIONS[index];
 };
 
-// HTML generator functions
-// ========================
-const generateAnswerItemHtml = function(answer) {
+  // HTML generator functions
+  // ========================
+const generateAnswerItemHtml = function(answer) { //template generates answer options
   return `
     <li class="answer-item">
       <input type="radio" name="answers" value="${answer}" />
@@ -109,7 +98,7 @@ const generateAnswerItemHtml = function(answer) {
   `;
 };
 
-const generateQuestionHtml = function(question) {
+const generateQuestionHtml = function(question) {//template generates answer question for each array item????
   const answers = question.answers
     .map((answer, index) => generateAnswerItemHtml(answer, index))
     .join('');
@@ -125,16 +114,16 @@ const generateQuestionHtml = function(question) {
   `;
 };
 
-const generateFeedbackHtml = function(feedback) {
+const generateFeedbackHtml = function(feedback) { //add continue button
   return `
     <p>${feedback}</p>
     <button class="continue js-continue">Continue</button>
   `;
 };
 
-// Render function - uses `store` object to construct entire page every time it's run
-// ===============
-const render = function() {
+  // Render function - uses `store` object to construct entire page every time it's run
+  // ===============
+const render = function() { //add continue button
   let html;
   hideAll();
 
@@ -144,6 +133,10 @@ const render = function() {
 
   $('.js-score').html(`<span>Score: ${getScore()}</span>`);
   $('.js-progress').html(`<span>Question ${current} of ${total}`);
+
+  if (sessionToken) {
+    $('.js-start-button').attr('disabled', false);
+  }
 
   switch (store.page) {
   case 'intro':
@@ -174,8 +167,8 @@ const render = function() {
   }
 };
 
-// Event handler functions
-// =======================
+  // Event handler functions
+  // =======================
 const handleStartQuiz = function() {
   store = getInitialStore();
   store.page = 'question';
@@ -211,10 +204,11 @@ const handleNextQuestion = function() {
   render();
 };
 
-// On DOM Ready, run render() and add event listeners
-$(() => {
-  render();
-
+  // On DOM Ready, run render() and add event listeners
+$(function() { 
+  fetchSessionToken(() => {
+    render();
+  });
   $('.js-intro, .js-outro').on('click', '.js-start', handleStartQuiz);
   $('.js-question').on('submit', handleSubmitAnswer);
   $('.js-question-feedback').on('click', '.js-continue', handleNextQuestion);
