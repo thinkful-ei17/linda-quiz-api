@@ -19,7 +19,29 @@
   <main role="main">
     <section class="intro js-intro">
       <p>Welcome to the quiz.</p>
-      <button class="start js-start">Start Now</button>
+    <section class ="js-query-options">
+      <div class="dropdown">
+        <div>
+        <select id="dropdown-category" name="dropdown-category" class="form-control">
+          <option value="0">--Select Category--</option>
+          <option value="Adhoc">Adhoc</option>
+          <option value="Dedicated">Dedicated</option>
+        </select>
+      </div>
+      <div>
+        <select id="dropdown-type" name="dropdown-type" class="form-control">
+        <option value="0">--Select Type of Questions--</option> 
+        <option value="Truth-False">Truth/False</option>
+        <option value="Multiple-Choice">Multiple Choice</option>
+        </select>
+      </div>
+      <div class="input-number">
+        <form action="number-of-questions">
+          <input class="input-box" type="integer" name="numberQuestions" placeholder="Input No. of Questions Desired">
+        </form>
+      </div>
+    </section>
+    <button class="start js-start">Start Now</button>
     </section>
     <section class="question js-question"></section>
     <section class="question-feedback js-question-feedback"></section>

@@ -2,7 +2,7 @@
 /* global $ */
 
 const TOP_LEVEL_COMPONENTS = [ //array js classes in order to hide all
-  'js-intro', 'js-question', 'js-question-feedback', 'js-outro', 'js-quiz-status'
+  'js-intro', 'js-question', 'js-question-feedback', 'js-outro', 'js-quiz-status', 'js-query-options',
 ];
 
 const QUESTIONS = [ //array-object with local questions to display
@@ -23,7 +23,9 @@ const getInitialStore = function() { //initial STORE/DOM view
     page: 'intro', //view intro
     currentQuestionIndex: null, //no current question
     userAnswers: [], //empty array user answer
-    feedback: null //no current feedback
+    feedback: null, //no current feedback
+    questionsObtained: [],
+    tokenObtained: null,
   };
 };
 
@@ -31,39 +33,69 @@ let store = getInitialStore(); //variable initialize function
 
 // API source data functions
 // ===============
-/*
-const BASE_URL = 'http://example.api.com';
-const MAIN_PATH = '/some/path';
-const TOKEN_PATH = '/another/path';
+
+const BASE_URL = 'https://opentdb.com/';
+const MAIN_PATH = 'api.php';
+const TOKEN_PATH = 'api_token.php';
 
 // Build the endpoint URL
-function buildBaseUrl() {}
-function buildTokenUrl() {}
+
+function buildTokenUrl() {
+  const url = new URL(BASE_URL);
+  url.pathname = TOKEN_PATH;
+  
+  url.searchParams.set('command', 'request');
+
+  url.toString();
+
+  $.getJSON(url, fetchToken);
+
+  console.log('the buildTokenUrl is', url);
+}
+
+function buildBaseUrl(amountTerm, categoryTerm, typeTerm, callback) {
+  const url = new URL(BASE_URL);
+  url.pathname = MAIN_PATH;
+
+  url.searchParams.set('amount', amountTerm); //request number of questions (number)
+  url.searchParams.set('category', categoryTerm); //request category (number)
+  url.searchParams.set('type', typeTerm); //request type of questions
+  if (getInitialStore.tokenObtained !== undefined) {
+    url.searchParams.set('command', 'reset');
+    url.searchParams.set('token', getInitialStore.tokenObtained);
+  }
+  url.toString(); 
+
+  $.getJSON(url, fetchQuestions);
+
+  console.log('the buildBaseUrl is', url);
+}
 
 // Fetch data
-function fetchToken() {}
-function fetchQuestions() {}
+function fetchToken(data) {
+  let tokenValue = data.token;
+  getInitialStore.tokenObtained = tokenValue;
+  console.log('the tokenValue is', tokenValue);
+
+  buildBaseUrl(10, 9, 'boolean'); //DO AT END - NEED TO OBTAIN USER INPUT
+  
+}
+function fetchQuestions(data) {
+  getInitialStore.questionsObtained = data.results;
+  console.log('the fetchQuestions is', data);
+  console.log('the store questions value is now', getInitialStore.questionsObtained);
+}
+
+//added api questions to STORE; 
+//decorate questions?
+//add question to screen?
+
 
 // Decorate responses
 function decorateQuestion() {}
 
 // Add question to store
 function addQuestion() {}
-
-//built in functions to build url
-
-const url = new URL('http://example.api.com');
-
-url.pathname = '/my/path';
-url.searchParams.set('foo', 'bar');
-url.searchParams.set('mon', 'key');
-
-url.toString(); //=> 'http://example.api.com/my/path?foo=bar&mon=key'
-
-
-// toString() is automatically called when passed into getJSON()
-$.getJSON(url, callback);
-*/
 
 // Helper functions
 // ===============
@@ -148,6 +180,8 @@ const render = function() {
   switch (store.page) {
   case 'intro':
     $('.js-intro').show();
+    $('.js-query-options').show();
+    buildTokenUrl();
     break;
 
   case 'question':
@@ -211,6 +245,11 @@ const handleNextQuestion = function() {
   render();
 };
 
+//NEED TO RESTART WITH START PAGE RATHER THAN LOOP BACK TO QUESTIONS - ADD LATER
+const handleRestartQuiz = function() {
+  
+};
+
 // On DOM Ready, run render() and add event listeners
 $(() => {
   render();
@@ -218,4 +257,5 @@ $(() => {
   $('.js-intro, .js-outro').on('click', '.js-start', handleStartQuiz);
   $('.js-question').on('submit', handleSubmitAnswer);
   $('.js-question-feedback').on('click', '.js-continue', handleNextQuestion);
+  
 });

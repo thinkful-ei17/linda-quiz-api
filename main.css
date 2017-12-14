@@ -24,3 +24,7 @@ button {
 .answer-item {
   list-style-type: none;
 }
+
+.input-box {
+  width: 250px;
+}
