@@ -60,9 +60,9 @@ function buildBaseUrl(amountTerm, categoryTerm, typeTerm, callback) {
   url.searchParams.set('amount', amountTerm); //request number of questions (number)
   url.searchParams.set('category', categoryTerm); //request category (number)
   url.searchParams.set('type', typeTerm); //request type of questions
-  if (getInitialStore.tokenObtained !== undefined) {
+  if (store.tokenObtained !== undefined) {
     url.searchParams.set('command', 'reset');
-    url.searchParams.set('token', getInitialStore.tokenObtained);
+    url.searchParams.set('token', store.tokenObtained);
   }
   url.toString(); 
 
@@ -74,16 +74,16 @@ function buildBaseUrl(amountTerm, categoryTerm, typeTerm, callback) {
 // Fetch data
 function fetchToken(data) {
   let tokenValue = data.token;
-  getInitialStore.tokenObtained = tokenValue;
+  store.tokenObtained = tokenValue;
   console.log('the tokenValue is', tokenValue);
 
   buildBaseUrl(10, 9, 'boolean'); //DO AT END - NEED TO OBTAIN USER INPUT
   
 }
 function fetchQuestions(data) {
-  getInitialStore.questionsObtained = data.results;
+  store.questionsObtained = data.results;
   console.log('the fetchQuestions is', data);
-  console.log('the store questions value is now', getInitialStore.questionsObtained);
+  console.log('the store questions value is now', store.questionsObtained);
 }
 
 //added api questions to STORE; 
