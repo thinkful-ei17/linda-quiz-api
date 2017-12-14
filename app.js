@@ -25,7 +25,7 @@ const getInitialStore = function() { //initial STORE/DOM view
     userAnswers: [], //empty array user answer
     feedback: null, //no current feedback
     questionsObtained: [],
-    tokenObtained: null,
+    tokenObtained: '',
   };
 };
 
@@ -53,14 +53,14 @@ function buildTokenUrl() {
   console.log('the buildTokenUrl is', url);
 }
 
-function buildBaseUrl(amountTerm, categoryTerm, typeTerm, callback) {
+function buildBaseUrl(amountTerm, categoryTerm, typeTerm) {
   const url = new URL(BASE_URL);
   url.pathname = MAIN_PATH;
 
   url.searchParams.set('amount', amountTerm); //request number of questions (number)
   url.searchParams.set('category', categoryTerm); //request category (number)
   url.searchParams.set('type', typeTerm); //request type of questions
-  if (store.tokenObtained !== undefined) {
+  if (store.tokenObtained !== '') {
     url.searchParams.set('command', 'reset');
     url.searchParams.set('token', store.tokenObtained);
   }
@@ -77,7 +77,7 @@ function fetchToken(data) {
   store.tokenObtained = tokenValue;
   console.log('the tokenValue is', tokenValue);
 
-  buildBaseUrl(10, 9, 'boolean'); //DO AT END - NEED TO OBTAIN USER INPUT
+  //buildBaseUrl(10, 9, 'boolean'); //DO AT END - NEED TO OBTAIN USER INPUT
   
 }
 function fetchQuestions(data) {
@@ -86,13 +86,46 @@ function fetchQuestions(data) {
   console.log('the store questions value is now', store.questionsObtained);
 }
 
+// function watchSubmit() {
+//   $('.number-of-questions').submit(event => {
+//     event.preventDefault();
+//     const queryTarget = $(event.currentTarget).find('.js-input-box');
+//     const query = queryTarget.val();
+//     buildTokenUrl();
+//     buildBaseUrl(query, 9, 'boolean');
+//   });
+// }
+
+// function buildSessionTokenUrl(tokenData) {
+//   tokenObtained = tokenData.token;
+//   if (!tokenObtained === ''){
+//     $('.js-start').toggle();
+//   }
+// }
+
+
 //added api questions to STORE; 
 //decorate questions?
 //add question to screen?
 
 
 // Decorate responses
-function decorateQuestion() {}
+const createQuestion = function(question) { //for one question - remember to call for each object in the array
+  // Copy incorrect_answers array into new all answers array
+  const answers = [ ...question.incorrect_answers ];
+
+  // Pick random index from total answers length (incorrect_answers length + 1 correct_answer)
+  const randomIndex = Math.floor(Math.random() * (question.incorrect_answers.length + 1));
+
+  // Insert correct answer at random place
+  answers.splice(randomIndex, 0, question.correct_answer);
+
+  return {
+    text: question.question,
+    correctAnswer: question.correct_answer,
+    answers
+  };
+};
 
 // Add question to store
 function addQuestion() {}
@@ -127,7 +160,7 @@ const getCurrentQuestion = function() {
 };
 
 const getQuestion = function(index) {
-  return QUESTIONS[index];
+  return QUESTIONS[index]; //return QUESTIONS[index];
 };
 
 // HTML generator functions
